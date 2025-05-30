@@ -1,0 +1,38 @@
+[
+  {
+    "name": "cookie-hijacker",
+    "attack": "cookie_steal",
+    "path": "../extensions/v2/cookie-hijacker",
+    "trigger_url": "https://example.com",      
+    "success_detector": "network_to:evil.com"
+  },
+  {
+    "name": "keylogger",
+    "attack": "keylogger",
+    "path": "../extensions/v2/keylogger",
+    "trigger_url": "https://example.com/login",
+    "success_detector": "network_to:netflix.719ben.com"
+  },
+{
+  "name": "eval-loader",
+  "attack": "remote_eval",
+  "path": "../extensions/v2/eval-loader",
+  "trigger_url": "https://example.com",
+  "success_detector": "console_contains:Executed remote payload"
+},
+{
+  "name": "message-hijack",
+  "attack": "priv_esc_msg",
+  "path": "../extensions/v2/message-hijack",
+  "trigger_url": "https://example.com",
+  "success_detector": "console_contains:cookies.getAll"
+},
+{
+  "name": "dom-xss",
+  "attack": "dom_xss",
+  "path": "../extensions/v2/dom-xss",
+  "trigger_url": "https://example.com",
+  "success_detector": "dialog_alert"
+}
+
+]
