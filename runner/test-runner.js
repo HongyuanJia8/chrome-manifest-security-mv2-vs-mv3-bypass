@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
 program
-  .requiredOption('--ext <name>', 'extension name in config.json')
+  .requiredOption('--ext <n>', 'extension name in config.json')
   .requiredOption('--mode <v2|v3>', 'browser mode')
   .parse();
 const opts = program.opts();
@@ -41,37 +41,79 @@ const csvWriter = createObjectCsvWriter({
 });
 
 (async () => {
-  const browser = await puppeteer.launch({
-    headless: false,                    
-    executablePath: BIN[opts.mode],
-    args: [
-      `--disable-extensions-except=${path.resolve(target.path)}`,
-      `--load-extension=${path.resolve(target.path)}`,
-      '--no-sandbox'
-    ]
-  });
-
-  const page = await browser.newPage();
-  attachDetectors(page, target.success_detector);
-
-  let reason = '';
+  let browser;
   try {
-    await page.goto(target.trigger_url, { waitUntil: 'load', timeout: 30000 });
-    await page.waitForTimeout(8000);
-  } catch (e) {
-    reason = e.message;
-  }
+    const extensionPath = path.resolve(__dirname, target.path);
+    console.log(`Loading extension from: ${extensionPath}`);
+    
+    // Simplified launch args
+    const launchArgs = [
+      `--disable-extensions-except=${extensionPath}`,
+      `--load-extension=${extensionPath}`,
+      '--no-sandbox',
+      '--disable-setuid-sandbox'
+    ];
+    
+    console.log(`Launching ${opts.mode} browser...`);
+    browser = await puppeteer.launch({
+      headless: false,
+      executablePath: BIN[opts.mode],
+      args: launchArgs,
+      ignoreDefaultArgs: ['--disable-extensions'],
+      dumpio: true,  // Show browser console output
+      handleSIGINT: false,
+      handleSIGTERM: false,
+      handleSIGHUP: false
+    });
 
-  const success = !!page.___attackSuccess;
-  await csvWriter.writeRecords([
-    {
-      name: target.name,
-      attack: target.attack,
-      mode: opts.mode,
-      success,
-      reason: success ? '' : reason || 'not triggered'
+    console.log('Browser launched, creating page...');
+    const page = await browser.newPage();
+    
+    console.log('Attaching detectors...');
+    attachDetectors(page, target.success_detector);
+
+    let reason = '';
+    try {
+      console.log(`Navigating to ${target.trigger_url}...`);
+      await page.goto(target.trigger_url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+      console.log('Page loaded, waiting for attack to execute...');
+      await page.waitForTimeout(5000);
+    } catch (e) {
+      reason = e.message;
+      console.error('Navigation error:', reason);
     }
-  ]);
-  await browser.close();
-  console.log(`✅ ${target.name} (${opts.mode}) finished:`, success);
+
+    const success = !!page.___attackSuccess;
+    console.log('Attack success:', success);
+    
+    await csvWriter.writeRecords([
+      {
+        name: target.name,
+        attack: target.attack,
+        mode: opts.mode,
+        success,
+        reason: success ? '' : reason || 'not triggered'
+      }
+    ]);
+    
+    console.log(`✅ ${target.name} (${opts.mode}) finished:`, success);
+  } catch (error) {
+    console.error('Test error:', error.message);
+    await csvWriter.writeRecords([
+      {
+        name: target.name,
+        attack: target.attack,
+        mode: opts.mode,
+        success: false,
+        reason: error.message
+      }
+    ]);
+  } finally {
+    if (browser) {
+      console.log('Closing browser...');
+      await browser.close();
+    }
+  }
+  
+  process.exit(0);
 })();

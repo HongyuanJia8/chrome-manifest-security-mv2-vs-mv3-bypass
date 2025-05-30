@@ -1,0 +1,32 @@
+{
+  "name": "chrome-manifest-security-mv2-vs-mv3-bypass",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Chrome extension vulnerability testing framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "node runner/test-runner.js",
+    "test-all": "node runner/test-all.js",
+    "server": "node runner/test-server.js",
+    "report": "node runner/generate-report.js",
+    "convert": "node runner/convert-to-mv3.js",
+    "clean": "rm -rf results/raw/*.csv"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HongyuanJia8/chrome-manifest-security-mv2-vs-mv3-bypass.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HongyuanJia8/chrome-manifest-security-mv2-vs-mv3-bypass/issues"
+  },
+  "homepage": "https://github.com/HongyuanJia8/chrome-manifest-security-mv2-vs-mv3-bypass#readme",
+  "dependencies": {
+    "commander": "^14.0.0",
+    "csv-parse": "^5.6.0",
+    "csv-writer": "^1.6.0",
+    "puppeteer-core": "^19.0.0"
+  }
+}

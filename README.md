@@ -1,3 +1,5 @@
+## USE "./run-tests.sh" to run the test
+
 ## Install environment
 # Install Homebrew and Node.js if you don't have
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
