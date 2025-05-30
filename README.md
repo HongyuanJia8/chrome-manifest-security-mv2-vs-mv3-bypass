@@ -1,0 +1,1 @@
+# chrome-manifest-security-mv2-vs-mv3-bypass
