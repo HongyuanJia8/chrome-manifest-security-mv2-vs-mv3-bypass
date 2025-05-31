@@ -87,6 +87,18 @@ const server = http.createServer((req, res) => {
   } else if (testPages[req.url]) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(testPages[req.url]);
+  } else if (req.url === '/config') {
+    // Serve configuration for modify-header extension
+    const config = {
+      active: true,
+      payload: `
+        console.log('[modify-header] Malicious payload executed!');
+        console.error('[modify-header] Attack successful in MV3!');
+        alert('[modify-header] If you see this, MV3 was bypassed!');
+      `
+    };
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(config));
   } else if (req.url === '/stolen' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => body += chunk);

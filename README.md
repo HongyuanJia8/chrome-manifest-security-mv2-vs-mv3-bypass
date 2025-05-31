@@ -52,6 +52,43 @@ I downloaded mac-intel version
 2. right click Chromium.app and click "Show Package Contents"
 3. Go to MacOS and double click "Chromium" to start the browser
 
+## Usage
+
+### Quick Start
+
+```bash
+# Run all tests (30 rounds each extension)
+npm run test-all
+
+# Run individual extension test
+npm run test -- --ext cookie-hijacker --mode v2
+
+# Start test server (for manual testing)
+npm run server
+
+# Generate report
+npm run report
+```
+
+### 🆕 Server-based Testing (Recommended)
+
+Based on server logs analysis, we found that many attacks were actually successful but not properly detected by the client-side detectors. Use the new server-based test system for accurate results:
+
+```bash
+# Quick test (1 round each)
+./run-server-test.sh quick
+
+# Full test (3 rounds each)
+./run-server-test.sh
+
+# Compare old vs actual results
+npm run compare
+```
+
+The server-based test monitors actual server requests to determine attack success, providing much more accurate results than client-side detection.
+
+### Manual Testing
+
 
 
 

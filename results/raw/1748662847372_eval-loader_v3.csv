@@ -1,0 +1,2 @@
+name,attack,mode,success,reason
+eval-loader,remote_eval,v3,true,Attack detected via server logs

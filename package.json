@@ -5,12 +5,11 @@
   "description": "Chrome extension vulnerability testing framework",
   "main": "index.js",
   "scripts": {
-    "test": "node runner/test-runner.js",
-    "test-all": "node runner/test-all.js",
     "server": "node runner/test-server.js",
     "report": "node runner/generate-report.js",
-    "convert": "node runner/convert-to-mv3.js",
-    "clean": "rm -rf results/raw/*.csv"
+    "clean": "rm -rf results/raw/*.csv",
+    "server-test": "node runner/server-based-test.js",
+    "compare": "node runner/compare-results.js"
   },
   "repository": {
     "type": "git",

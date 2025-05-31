@@ -1,0 +1,2 @@
+name,attack,mode,success,reason
+dom-xss,dom_xss,v3,false,No attack detected
