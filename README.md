@@ -2,7 +2,7 @@
 
 A comprehensive security analysis comparing Chrome Extension Manifest V2 and V3 through automated testing of various malicious extension types. This research evaluates the effectiveness of Manifest V3's security improvements against real-world attack vectors.
 
-## 🔍 Project Overview
+##  Project Overview
 
 This project systematically tests the security implications of Chrome's transition from Manifest V2 to V3 by implementing and testing various types of malicious extensions across both manifest versions. Our automated testing framework reveals which attacks are successfully blocked by MV3's security enhancements and which vulnerabilities remain exploitable.
 
@@ -47,31 +47,31 @@ npm run server
 
 Our test suite includes 6 different types of malicious extensions, each targeting different attack vectors:
 
-### 1. **Cookie Hijacker** 🍪
+### 1. **Cookie Hijacker** 
 - **Attack Vector**: Steals cookies from all visited websites
 - **Implementation**: Uses `chrome.cookies.getAll()` API to access browser cookies
 - **MV2 vs MV3**: Both versions can succeed if proper permissions are granted
 - **Files**: `extensions/v2/cookie-hijacker/`, `extensions/v3/cookie-hijacker/`
 
-### 2. **Keylogger** ⌨️
+### 2. **Keylogger** ️
 - **Attack Vector**: Captures keystrokes on all web pages
 - **Implementation**: Content script monitors `document.onkeypress` events
 - **MV2 vs MV3**: Identical functionality - content scripts retain full DOM access
 - **Files**: `extensions/v2/keylogger/`, `extensions/v3/keylogger/`
 
-### 3. **Eval Loader** 💉
+### 3. **Eval Loader** 
 - **Attack Vector**: Downloads and executes remote JavaScript code
 - **Implementation**: Fetches payload from remote server and uses `eval()` to execute
 - **MV2 vs MV3**: **MV3 blocks this attack** - CSP prevents `unsafe-eval`
 - **Files**: `extensions/v2/eval-loader/`, `extensions/v3/eval-loader/`
 
-### 4. **DOM XSS Injector** 🔧
+### 4. **DOM XSS Injector** 
 - **Attack Vector**: Injects malicious scripts into web pages
 - **Implementation**: Content script creates and appends `<script>` elements
 - **MV2 vs MV3**: **MV3 blocks this attack** - CSP prevents inline script execution
 - **Files**: `extensions/v2/dom-xss/`, `extensions/v3/dom-xss/`
 
-### 5. **Header Modifier** 🛡️
+### 5. **Header Modifier** 
 - **Attack Vector**: Modifies HTTP headers to bypass security policies
 - **Implementation**: 
   - **MV2**: Uses `webRequest` API to modify headers
@@ -79,7 +79,7 @@ Our test suite includes 6 different types of malicious extensions, each targetin
 - **MV2 vs MV3**: **Partial success in MV3** - Can still modify headers and use HTML event handlers
 - **Files**: `extensions/v2/modify-header/`, `extensions/v3/modify-header/`
 
-### 6. **Message Hijacker** 📨
+### 6. **Message Hijacker** 
 - **Attack Vector**: Intercepts and manipulates postMessage communications
 - **Implementation**: Listens for window messages and responds with sensitive data
 - **MV2 vs MV3**: **MV3 restricts this attack** - Service worker limitations reduce effectiveness
@@ -112,7 +112,7 @@ The automated test server provides:
 
 
 
-## ⚠️ Disclaimer
+##  Disclaimer
 
 This research is conducted for educational and security research purposes only. The malicious extensions included in this repository are proof-of-concept implementations designed to evaluate browser security mechanisms. Do not use these techniques for malicious purposes.
 
