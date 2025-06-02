@@ -43,7 +43,7 @@ npm run test -- --ext cookie-hijacker --mode v2
 npm run server
 ```
 
-## 🔬 Malicious Extensions Tested
+##  Malicious Extensions Tested
 
 Our test suite includes 6 different types of malicious extensions, each targeting different attack vectors:
 
