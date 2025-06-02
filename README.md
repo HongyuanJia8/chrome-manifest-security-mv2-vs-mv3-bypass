@@ -1,94 +1,118 @@
-## USE "./run-tests.sh" to run the test
+# Chrome Extension Manifest V2 vs V3 Security Analysis
 
-## Install environment
-# Install Homebrew and Node.js if you don't have
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-brew install node 
-node -v 
+A comprehensive security analysis comparing Chrome Extension Manifest V2 and V3 through automated testing of various malicious extension types. This research evaluates the effectiveness of Manifest V3's security improvements against real-world attack vectors.
 
-# Create conda environment if you want
-conda create -n mv3study python=3.12 -c conda-forge
-conda activate mv3study
+## 🔍 Project Overview
 
-# Install package
-conda install -y pandas matplotlib jupyterlab ipykernel -c conda-forge
+This project systematically tests the security implications of Chrome's transition from Manifest V2 to V3 by implementing and testing various types of malicious extensions across both manifest versions. Our automated testing framework reveals which attacks are successfully blocked by MV3's security enhancements and which vulnerabilities remain exploitable.
 
-pip install csvkit mitmproxy
+## Quick Start
 
-python -m ipykernel install --user --name mv3study --display-name "mv3study"
+### Prerequisites
 
-# Install Node / Puppeteer Dependency
-conda install -y nodejs=20 -c conda-forge
-npm -v 
+- **Node.js** (v20+) and npm
+- **Chrome/Chromium** browser (version 109.0.5413.2 recommended for testing)
+- **macOS** (tested on macOS, may work on other platforms)
 
-# initialize Node Dependency
-mkdir ~/mv3-study && cd ~/mv3-study
-npm init -y
-npm install puppeteer csv-writer
-
-# Install CLI Tools (optional)
-brew install git jq tcpdump
-
-# Check if everything OK
-conda activate mv3study
-python - <<'PY'
-import pandas, matplotlib
-print("✅ pandas", pandas.__version__)
-PY
-
-node -e "console.log('✅ Node', process.version)"
-npx puppeteer --help | head -n 3
-
-## Download Chrome older version
-Go to https://vikyd.github.io/download-chromium-history-version/#/ and select your operating system
-
-Download :
-version: 109.0.5413.2
-position (revision): 1069704
-
-I downloaded mac-intel version
-
-1. Unzip chrome-mac.zip
-2. right click Chromium.app and click "Show Package Contents"
-3. Go to MacOS and double click "Chromium" to start the browser
-
-## Usage
-
-### Quick Start
+### Installation
 
 ```bash
-# Run all tests (30 rounds each extension)
-npm run test-all
 
-# Run individual extension test
-npm run test -- --ext cookie-hijacker --mode v2
 
-# Start test server (for manual testing)
-npm run server
+# Install dependencies
+npm install
 
-# Generate report
-npm run report
+# Download Chrome/Chromium for testing(It depends on the platform you use)
+# Visit: https://vikyd.github.io/download-chromium-history-version/
+# Download version 109.0.5413.2 and extract to ./chrome-mac/
 ```
 
-### 🆕 Server-based Testing (Recommended)
-
-Based on server logs analysis, we found that many attacks were actually successful but not properly detected by the client-side detectors. Use the new server-based test system for accurate results:
+### Basic Usage
 
 ```bash
-# Quick test (1 round each)
-./run-server-test.sh quick
-
-# Full test (3 rounds each)
+# Run comprehensive security test (recommended)
 ./run-server-test.sh
 
-# Compare old vs actual results
-npm run compare
+# Quick test (1 round per extension)
+./run-server-test.sh quick
+
+# Test specific extension
+npm run test -- --ext cookie-hijacker --mode v2
+
+# Start test server for manual testing
+npm run server
 ```
 
-The server-based test monitors actual server requests to determine attack success, providing much more accurate results than client-side detection.
+## 🔬 Malicious Extensions Tested
 
-### Manual Testing
+Our test suite includes 6 different types of malicious extensions, each targeting different attack vectors:
+
+### 1. **Cookie Hijacker** 🍪
+- **Attack Vector**: Steals cookies from all visited websites
+- **Implementation**: Uses `chrome.cookies.getAll()` API to access browser cookies
+- **MV2 vs MV3**: Both versions can succeed if proper permissions are granted
+- **Files**: `extensions/v2/cookie-hijacker/`, `extensions/v3/cookie-hijacker/`
+
+### 2. **Keylogger** ⌨️
+- **Attack Vector**: Captures keystrokes on all web pages
+- **Implementation**: Content script monitors `document.onkeypress` events
+- **MV2 vs MV3**: Identical functionality - content scripts retain full DOM access
+- **Files**: `extensions/v2/keylogger/`, `extensions/v3/keylogger/`
+
+### 3. **Eval Loader** 💉
+- **Attack Vector**: Downloads and executes remote JavaScript code
+- **Implementation**: Fetches payload from remote server and uses `eval()` to execute
+- **MV2 vs MV3**: **MV3 blocks this attack** - CSP prevents `unsafe-eval`
+- **Files**: `extensions/v2/eval-loader/`, `extensions/v3/eval-loader/`
+
+### 4. **DOM XSS Injector** 🔧
+- **Attack Vector**: Injects malicious scripts into web pages
+- **Implementation**: Content script creates and appends `<script>` elements
+- **MV2 vs MV3**: **MV3 blocks this attack** - CSP prevents inline script execution
+- **Files**: `extensions/v2/dom-xss/`, `extensions/v3/dom-xss/`
+
+### 5. **Header Modifier** 🛡️
+- **Attack Vector**: Modifies HTTP headers to bypass security policies
+- **Implementation**: 
+  - **MV2**: Uses `webRequest` API to modify headers
+  - **MV3**: Uses `declarativeNetRequest` to remove/modify CSP headers
+- **MV2 vs MV3**: **Partial success in MV3** - Can still modify headers and use HTML event handlers
+- **Files**: `extensions/v2/modify-header/`, `extensions/v3/modify-header/`
+
+### 6. **Message Hijacker** 📨
+- **Attack Vector**: Intercepts and manipulates postMessage communications
+- **Implementation**: Listens for window messages and responds with sensitive data
+- **MV2 vs MV3**: **MV3 restricts this attack** - Service worker limitations reduce effectiveness
+- **Files**: `extensions/v2/message-hijack/`, `extensions/v3/message-hijack/`
+
+##  Testing Framework
+
+### Server-Based Detection System
+
+Our testing framework uses a novel server-based detection system that monitors actual HTTP requests to determine attack success, providing more accurate results than client-side detection alone.
+
+#### Detection Criteria
+
+| Extension | Detection Method | Success Indicator |
+|-----------|------------------|-------------------|
+| Cookie Hijacker | Server logs | `POST /stolen` with cookie data |
+| Keylogger | Server logs | `POST /stolen` with keystroke data |
+| Eval Loader | Server logs | `GET /payload.js` requests |
+| Header Modifier | Server logs + Page execution | `GET /config` + payload execution |
+| DOM XSS | Page alerts/console | JavaScript alert dialogs |
+| Message Hijacker | Server logs | `GET /test/message-hijack` + data theft |
+
+#### Test Server Endpoints
+
+The automated test server provides:
+- `http://localhost:8000/payload.js` - Malicious JavaScript payload
+- `http://localhost:8000/config` - Configuration for dynamic attacks
+- `http://localhost:8000/stolen` - Data exfiltration endpoint
+- `http://localhost:8000/test/message-hijack` - Message hijacking test page
 
 
 
+## ⚠️ Disclaimer
+
+This research is conducted for educational and security research purposes only. The malicious extensions included in this repository are proof-of-concept implementations designed to evaluate browser security mechanisms. Do not use these techniques for malicious purposes.
 
